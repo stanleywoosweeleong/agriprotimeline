@@ -380,6 +380,8 @@
   .toast{position:fixed;left:50%;bottom:calc(2rem + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(12px);display:flex;align-items:center;gap:.5rem;max-width:90vw;background:var(--accent);color:#fff;font-size:.85rem;font-weight:700;padding:.7rem 1.1rem;border-radius:999px;box-shadow:0 10px 28px rgba(0,0,0,.2);z-index:400;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
   .toast svg{width:17px;height:17px;flex:none;}
+  @keyframes farmFlash{0%,55%{box-shadow:0 0 0 3px var(--accent-bright);}100%{box-shadow:0 0 0 0 rgba(0,0,0,0);}}
+  .farm-flash{animation:farmFlash 1.3s ease;}
   .btn:disabled{opacity:.6;cursor:progress;}
 
   .slider{width:100%;height:6px;border-radius:99px;background:var(--c-line);appearance:none;-webkit-appearance:none;outline:none;cursor:pointer;}
@@ -390,6 +392,8 @@
   .pill{font-size:.7rem;font-weight:800;background:#fff;border:1px solid var(--c-line);border-radius:.55rem;padding:.15rem .55rem;color:var(--c);}
   .hairline{height:1px;background:var(--c-line);opacity:.6;margin:1rem 0;border:0;}
   .mini{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--c);opacity:.75;}
+  .hist-farm{font-size:.95rem;font-weight:800;color:var(--ink);letter-spacing:0;text-transform:none;}
+  .lang-zh .hist-farm{font-size:1.06rem;}
   .note{background:rgba(255,255,255,.6);border:1px solid var(--c-line);border-radius:.75rem;padding:.7rem .8rem;font-size:.72rem;font-weight:700;color:var(--c);line-height:1.4;}
   .note .k{display:block;font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;opacity:.6;margin-bottom:.2rem;}
 
@@ -1633,7 +1637,7 @@ function persistStage(){ try{ if(state.activeIndex==null) localStorage.removeIte
 function setStage(idx){ state.activeIndex = (idx==null?null:idx); persistStage(); }
 function loadFarms(){ try{ const r=localStorage.getItem(FARMS_KEY); state.farms = r?JSON.parse(r):[]; }catch(_){ if(!Array.isArray(state.farms)) state.farms=[]; } }
 function persistFarms(){ try{ localStorage.setItem(FARMS_KEY, JSON.stringify(state.farms)); }catch(_){} }
-function farmDisplayName(f){ return f.en || f.zh || `${(+f.lat).toFixed(4)}, ${(+f.lng).toFixed(4)}`; }
+function farmDisplayName(f){ const z=state.lang==='zh'; return (z?(f.zh||f.en):(f.en||f.zh)) || `${(+f.lat).toFixed(4)}, ${(+f.lng).toFixed(4)}`; }
 function readFarmForm(){
   return {
     en:(document.getElementById('farmEn').value||'').trim(),
@@ -1660,9 +1664,12 @@ function saveFarmFromForm(){
     id='farm_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
     state.farms.push({ id, en, zh, lat, lng, history:[] });
   }
+  const wasEdit = !!state.editingFarm;
   state.confirmDelete=null;
   persistFarms(); clearFarmForm(); renderFarms();
   if(id) useFarm(id);            // saving a farm also makes it the active synced location
+  showToast(LL(wasEdit?'Location updated':'Location saved', wasEdit?'位置已更新':'位置已保存'));
+  if(id) setTimeout(()=>{ const el=document.querySelector(`[data-farm="${id}"]`); if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.add('farm-flash'); setTimeout(()=>el.classList.remove('farm-flash'),1300); } }, 80);
 }
 function editFarm(id){
   const f=state.farms.find(x=>x.id===id); if(!f) return;
@@ -1747,7 +1754,7 @@ function renderFarms(){
       if(f.en && f.zh) subBits.push(esc(f.zh));
       subBits.push(`${(+f.lat).toFixed(4)}, ${(+f.lng).toFixed(4)}`);
       const del = state.confirmDelete===f.id;
-      return `<div class="farm-row${active?' active':''}">
+      return `<div class="farm-row${active?' active':''}" data-farm="${f.id}">
         <div class="farm-info">
           <div class="farm-name">${esc(nm)}${active?` <span class="farm-tag">${ico('check')} ${LL('active','使用中')}</span>`:''}</div>
           <div class="farm-sub">${subBits.join('  ·  ')}</div>
@@ -1863,7 +1870,7 @@ function renderHistory(){
   const hist = farm.history || [];
   const active = hist.filter(r=>!r.deleted);
   const deleted = hist.filter(r=>r.deleted);
-  let html = `<hr class="hairline" /><div class="row" style="margin-bottom:.5rem"><span class="mini">${LL('History','记录')} — ${esc(farmDisplayName(farm))}</span></div>`;
+  let html = `<hr class="hairline" /><div class="row" style="margin-bottom:.5rem;align-items:baseline;gap:.45rem;flex-wrap:wrap;justify-content:flex-start"><span class="mini">${LL('History','记录')} —</span><span class="hist-farm">${esc(farmDisplayName(farm))}</span></div>`;
   if(!hist.length){
     box.innerHTML = html + `<div class="hist-note">${LL('No observations logged yet. Pick the stage you saw, set its date, and tap <b>Sync Current Stage</b> — every sync is saved here so your records are never lost.','尚未记录任何观察。选择你看到的阶段，设定日期，然后点击 <b>同步当前阶段</b> — 每次同步都会保存在这里，记录绝不丢失。')}</div>`;
     return;
