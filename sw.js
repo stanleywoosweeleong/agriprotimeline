@@ -2,7 +2,7 @@
    The app is a single self-contained file, so the whole app shell is index.html.
    Bump CACHE (e.g. -v2, -v3 ...) whenever you deploy a new index.html to force
    every installed device to refresh from the network on its next online launch. */
-const CACHE = 'agripro-timeline-v1';
+const CACHE = 'agripro-timeline-v3';
 const ASSETS = ['./', './index.html'];
 
 self.addEventListener('install', (e) => {
