@@ -95,9 +95,9 @@
   .screen-where b{color:var(--accent);}
   .screen-where svg{width:15px;height:15px;flex:none;}
   .screen-where .dot{color:var(--ink-faint);}
-  .screen-body{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:1.25rem 1rem 5.5rem;width:100%;max-width:46rem;margin:0 auto;}
+  .screen-body{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:calc(1.25rem + env(safe-area-inset-top)) 1rem calc(5.5rem + env(safe-area-inset-bottom));width:100%;max-width:46rem;margin:0 auto;}
   .screen-body > * + *{margin-top:1.5rem;}
-  .fab-group{position:fixed;bottom:1.1rem;right:1.1rem;z-index:210;display:flex;gap:.6rem;align-items:center;}
+  .fab-group{position:fixed;bottom:calc(1.1rem + env(safe-area-inset-bottom));right:calc(1.1rem + env(safe-area-inset-right));z-index:210;display:flex;gap:.6rem;align-items:center;}
   .fab{width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(0,0,0,.2);}
   .fab svg{width:21px;height:21px;}
   .fab-home{background:var(--surface,#fff);color:var(--accent);border:1.5px solid var(--line);}
@@ -105,12 +105,12 @@
   .fab-top{background:var(--accent);color:#fff;}
   .fab-top[hidden]{display:none;}
   .record-strip{justify-content:flex-end;}
-  .fab-corner{position:fixed;top:.9rem;right:.9rem;bottom:auto;z-index:215;}
+  .fab-corner{position:fixed;top:calc(.9rem + env(safe-area-inset-top));right:calc(.9rem + env(safe-area-inset-right));bottom:auto;z-index:215;}
   .tab-btn.launch.util{color:var(--accent);border-color:#bbf7d0;}
   .tab-btn.launch.util:hover{border-color:var(--accent-bright);color:var(--accent);}
   .strip-fab{flex:none;box-shadow:0 2px 6px rgba(0,0,0,.12);}
   #screenBody{padding-bottom:1.75rem;}
-  .home-fab{position:fixed;bottom:1.1rem;right:1.1rem;z-index:150;}
+  .home-fab{position:fixed;bottom:calc(1.1rem + env(safe-area-inset-bottom));right:calc(1.1rem + env(safe-area-inset-right));z-index:150;}
   body.screen-open .home-fab{display:none;}
   .brand .mark{
     width:38px;height:38px;border-radius:12px;background:var(--accent);color:#fff;
@@ -137,7 +137,7 @@
 
   /* ---------- phenology rail (signature element) ---------- */
   .rail-card{padding:1.5rem .5rem 3rem;}
-  .rail-title{text-align:center;margin-bottom:.25rem;}
+  .rail-title{text-align:center;margin-bottom:.25rem;font-size:.82rem;letter-spacing:.05em;}
   .lang-zh .rail-title{font-size:.95rem;letter-spacing:.06em;}
   .lang-zh .node-elapsed{font-size:.74rem;letter-spacing:.02em;}
   .rail-wrap{position:relative;margin:2.75rem auto 0;padding:0 3.4rem;}
@@ -151,10 +151,10 @@
   .r-leg.on span{color:var(--accent);}
   .l-dyn{position:absolute;left:-1.4rem;width:11px;border-left:2.5px solid var(--accent-bright);border-top:2.5px solid var(--accent-bright);border-bottom:2.5px solid var(--accent-bright);border-radius:.45rem 0 0 .45rem;background:rgba(16,185,129,.06);pointer-events:none;z-index:1;transition:.4s;}
   @media(min-width:480px){.l-dyn{left:-1.8rem;}}
-  .l-dyn span{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:.5rem;font-size:.7rem;font-weight:800;letter-spacing:-.01em;text-transform:uppercase;white-space:nowrap;color:var(--accent);}
+  .l-dyn span{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:.38rem;font-size:.62rem;font-weight:800;letter-spacing:-.01em;text-transform:uppercase;white-space:nowrap;color:var(--accent);}
   .l-dyn.unknown{border-color:var(--ink-faint);border-style:dashed;background:transparent;}
   .l-dyn.unknown span{color:var(--ink-faint);}
-  .daa-zero{display:inline-block;color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent-bright);border-radius:999px;padding:.12rem .42rem;font-size:.6rem;letter-spacing:.02em;}
+  .daa-zero{display:inline-block;color:var(--accent);font-weight:800;font-size:.66rem;letter-spacing:.02em;}
   .loop-tag{display:inline-block;text-transform:none;color:var(--accent);font-weight:800;letter-spacing:0;line-height:1.25;white-space:normal;}
 
   .node{position:absolute;left:-2rem;right:-2rem;display:flex;align-items:center;height:80px;margin-top:-40px;cursor:pointer;}
@@ -2011,7 +2011,7 @@ function renderRail(){
     const active = has && idx===ai;
     const iconSvg = ico(s.icon);
     const leftTag = (s.id==='pre_flower') ? s.elapsedLabel
-                  : (s.id==='recovery') ? `<span class="loop-tag">${LL('← Loop back to Dry Stress','← 循环回到旱胁迫')}</span>`
+                  : (s.id==='recovery') ? `<span class="loop-tag">${LL('← Loop back to Dry Stress','← 循环回到<br>旱胁迫')}</span>`
                   : (s.id==='flowering') ? '<span class="daa-zero">0 DAA</span>'
                   : '';
     return `<div class="node ${active?'active':''}${s.id==='pre_flower'?' trigger':''}" data-idx="${idx}" style="top:${top}%">
@@ -2444,6 +2444,8 @@ function wire(){
   loadClones();
   loadFarms();
   try{ const sv=localStorage.getItem(STAGE_KEY); if(sv!=null&&sv!==''){ const n=parseInt(sv,10); if(!isNaN(n)) state.activeIndex=n; } }catch(_){}
+  // Default to the Crab-Eyes stage so the view tabs work immediately (no need to tap the rail first).
+  if(state.activeIndex==null){ try{ const ci=getStagesNow().findIndex(s=>s.id==='bud_emergence'); state.activeIndex = ci>=0?ci:1; }catch(_){ state.activeIndex=1; } }
   try{ const cv=localStorage.getItem(CLONE_KEY); if(cv && state.clones.some(c=>c.id===cv)) state.cropVariety=cv; }catch(_){}
   // A grower with one farm (or returning to their last-used one) shouldn't have to open Settings to pick it.
   let bootActive=null;
