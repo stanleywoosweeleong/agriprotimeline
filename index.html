@@ -562,6 +562,9 @@
             <button type="button" class="stage-tile" data-anchor="bud" data-i18n="a_bud">Bud</button>
             <button type="button" class="stage-tile" data-anchor="matchstick" data-i18n="a_matchstick">Matchstick</button>
             <button type="button" class="stage-tile" data-anchor="anthesis" data-i18n="a_anthesis">Bloom</button>
+            <button type="button" class="stage-tile" data-anchor="fruitset" data-i18n="a_fruitset">Fruit Set</button>
+            <button type="button" class="stage-tile" data-anchor="expansion" data-i18n="a_expansion">Expansion</button>
+            <button type="button" class="stage-tile" data-anchor="maturation" data-i18n="a_maturation">Maturation</button>
             <button type="button" class="stage-tile target" data-anchor="harvest" data-i18n="a_harvest">Target</button>
             <input type="text" id="treeId" data-i18n-ph="treeId" placeholder="Tree ID" title="Tree ID / number — optional, for traceability" aria-label="Tree ID, optional, for traceability" />
           </div>
@@ -869,7 +872,7 @@ const I18N = {
     gdd_b1k:'Base temperature — 10 °C (assumption)', gdd_b4k:'Reference lowland heat — ≈ 17.5 GDD / day',
     gdd_b2k:'Induction trigger ≠ base temperature', gdd_b3k:'Field reference for farmers',
     cloneLabel:'Durian clone', treeId:'Tree ID', date:'Date', sync:'Sync',
-    a_induction:'Induction', a_bud:'Bud', a_matchstick:'Matchstick', a_anthesis:'Bloom', a_harvest:'Target',
+    a_induction:'Induction', a_bud:'Bud', a_matchstick:'Matchstick', a_anthesis:'Bloom', a_fruitset:'Fruit Set', a_expansion:'Expansion', a_maturation:'Maturation', a_harvest:'Target',
     tab_stage:'Stage', tab_feed:'Feed', tab_record:'Record', tab_protect:'Protect', tab_field:'Field',
     h_trace:'Secondary & Trace Elements', h_bio:'Biostimulant Synergy', h_foliar:'Foliar Spray Strategy',
     h_soil:'Soil Application', h_npk:'NPK Fertilizer Strategy', h_ipm:'Integrated Pest Management (IPM)',
@@ -914,7 +917,7 @@ const I18N = {
     gdd_p5:'榴莲比几乎任何水果都更难凭日期判断，而出口贸易最大的问题就是果实采得太早。所以时间轴告诉你<em>何时开始检查</em>——最终由树来决定。最可靠的迹象：果柄木栓化、肿胀并出现离层环；敲击果实时发出空洞、松动的声音；果刺变宽、变钝、间距加大；以及从基部升起的浓郁香气。若要客观的实验室级检测，<strong>干物质含量</strong>是黄金标准——泰国金枕(Monthong)有公布的阈值，但大多数马来西亚品种没有，因此值得记录下你自己的树尝起来正好时的干物质百分比。',
     gdd_p6:'研究人员如今用近红外光谱(NIR)、密度与果皮颜色扫描、热成像，以及手机摄像头 AI 模型来无损估测榴莲的干物质与成熟度。这些很有前景，但要准确就需要专用硬件或大量本地训练的数据集。这里刻意将它们略去而非伪造——本应用始终是一个规划与决策工具，采收的判断属于你在树前的眼、耳与鼻。',
     cloneLabel:'榴莲品种', treeId:'树的编号', date:'日期', sync:'同步',
-    a_induction:'诱导', a_bud:'螃蟹眼', a_matchstick:'火柴枝', a_anthesis:'爆花', a_harvest:'采收',
+    a_induction:'诱导', a_bud:'螃蟹眼', a_matchstick:'火柴枝', a_anthesis:'爆花', a_fruitset:'坐果', a_expansion:'膨大', a_maturation:'熟化', a_harvest:'采收',
     tab_stage:'阶段', tab_feed:'施肥', tab_record:'记录', tab_protect:'防护', tab_field:'田间',
     h_trace:'中微量元素补充', h_bio:'生物刺激素协同', h_foliar:'叶面喷施策略',
     h_soil:'土壤施用', h_npk:'氮磷钾施肥策略', h_ipm:'病虫害综合防治 (IPM)',
@@ -1340,8 +1343,12 @@ const ANCHOR_LABELS = {
   bud:{en:'I saw Bud Emergence on…', zh:'我观察到螃蟹眼于…'},
   matchstick:{en:'I saw Matchstick on…', zh:'我观察到火柴枝期于…'},
   anthesis:{en:'Full bloom was on…', zh:'爆花（盛花）于…'},
+  fruitset:{en:'I saw Fruit Set on…', zh:'我观察到坐果于…'},
+  expansion:{en:'I saw Rapid Expansion on…', zh:'我观察到果实膨大于…'},
+  maturation:{en:'I saw Maturation on…', zh:'我观察到果实熟化于…'},
   harvest:{en:'Target harvest date…', zh:'我希望果实采收（落果）于…'},
 };
+const ANCHOR_STAGE = { induction:'pre_flower', bud:'bud_emergence', matchstick:'matchstick', anthesis:'flowering', fruitset:'fruit_set', expansion:'fruit_expansion', maturation:'maturation', harvest:'harvest' };
 const state = {
   lang:(function(){try{var v=localStorage.getItem('agripro.lang');return (v==='en'||v==='zh')?v:'zh';}catch(e){return 'zh';}})(),
   activeIndex:null,
@@ -1405,11 +1412,12 @@ function biologicalStart(){
   const base = parseLocalDate(state.anchorDate);
   if(!base) return null;
   const stages = getStagesNow();
-  const harvestOffset = (stages.find(s=>s.id==='harvest')||{}).dayOffset;
-  if(state.anchorType==='harvest' && harvestOffset==null) return null;   // no days-to-harvest -> can't work backwards from a harvest date
+  const sid = ANCHOR_STAGE[state.anchorType] || 'flowering';
+  const st = stages.find(s=>s.id===sid);
+  const off = st ? st.dayOffset : 0;
+  if(off==null) return null;   // clone with unknown days-to-harvest for this anchor stage
   const d = new Date(base);
-  const shift = { induction:51, bud:30, matchstick:16, anthesis:0, harvest:-(harvestOffset||0) }[state.anchorType] ?? 0;
-  d.setDate(base.getDate() + shift);
+  d.setDate(base.getDate() - off);   // bloom (day 0) = observed date minus that stage's day-offset
   return d;
 }
 
@@ -1810,7 +1818,7 @@ function recordObservation(){
   const stages = getStagesNow();
   const hi = stages.findIndex(s=>s.id==='harvest');
   const harvestDate = (hi>=0 && dates[hi]) ? dates[hi].date : null;
-  const anchorIdx = { induction:0, bud:1, matchstick:2, anthesis:3, harvest:7 }[state.anchorType] ?? 0;
+  const anchorIdx = (()=>{ const i=stages.findIndex(z=>z.id===(ANCHOR_STAGE[state.anchorType]||'flowering')); return i>=0?i:0; })();
   const startIdx = (state.anchorType==='harvest') ? 0 : anchorIdx;   // harvest target -> show the whole plan leading up to that date
   const schedule = [];
   for(let i=startIdx; i<=hi && i<stages.length; i++){
