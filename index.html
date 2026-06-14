@@ -498,7 +498,7 @@
   .alert-split .mitig{color:#065f46;font-weight:600;font-size:.95rem;line-height:1.6;}
 
   /* modal */
-  .modal-bg{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:1rem;}
+  .modal-bg{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;padding:1rem;}
   .modal-bg.open{display:flex;}
   .modal-scrim{position:absolute;inset:0;background:rgba(28,25,23,.6);backdrop-filter:blur(6px);}
   .modal{position:relative;z-index:1;background:#fff;border-radius:var(--radius-lg);width:100%;max-width:42rem;max-height:88vh;overflow-y:auto;box-shadow:0 25px 60px -20px rgba(0,0,0,.4);}
@@ -506,6 +506,31 @@
   .modal-head .l{display:flex;align-items:center;gap:.8rem;}
   .modal-head .ico{background:#fff7ed;color:#d97706;border-radius:.9rem;padding:.6rem;display:grid;place-items:center;}
   .modal-head h3{font-size:1.25rem;font-weight:800;letter-spacing:-.01em;}
+  .log-tools{display:flex;gap:.5rem;margin:0 0 .7rem;}
+  .log-tool{flex:1;display:flex;align-items:center;justify-content:center;gap:.4rem;height:2.4rem;border-radius:.6rem;border:1.5px solid var(--accent-bright);background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:.8rem;cursor:pointer;}
+  .log-tool svg{width:15px;height:15px;}
+  .hist-foot-btns{display:flex;gap:.4rem;align-items:center;}
+  .rec-btn.wa{color:var(--accent);}
+  .share-modal{max-width:27rem;}
+  .share-modal .modal-body{gap:0;padding:1.35rem 1.5rem 1.6rem;}
+  .share-group{margin-bottom:1.15rem;}
+  .share-lab{font-size:.7rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:.45rem;}
+  .lang-zh .share-lab{font-size:.82rem;letter-spacing:.02em;text-transform:none;}
+  .seg-group{display:flex;width:100%;background:#eef2f6;border-radius:.7rem;padding:.25rem;gap:.25rem;}
+  .seg{flex:1;border:none;background:transparent;color:var(--ink-soft);font-weight:700;font-size:.82rem;padding:.55rem .3rem;border-radius:.55rem;cursor:pointer;text-align:center;white-space:nowrap;transition:.15s;}
+  .seg.on{background:#fff;color:var(--accent);box-shadow:0 1px 4px rgba(0,0,0,.13);}
+  .lang-zh .seg{font-size:.9rem;}
+  .share-sel{margin-top:.55rem;width:100%;height:2.6rem;border-radius:.6rem;border:1.5px solid var(--line);padding:0 .7rem;font-size:.92rem;background:#fff;color:var(--ink);}
+  .share-chip{display:flex;align-items:center;gap:.5rem;font-size:.9rem;color:var(--ink);background:var(--accent-soft);border-radius:.7rem;padding:.7rem .9rem;margin-bottom:1.15rem;}
+  .share-chip svg{width:16px;height:16px;color:var(--accent);flex:none;}
+  .share-preview{background:#f8fafc;border:1px solid var(--line);border-radius:.7rem;padding:.75rem .9rem;font-size:.78rem;line-height:1.55;color:var(--ink-soft);white-space:pre-wrap;word-break:break-word;max-height:8.5rem;overflow:auto;}
+  .lang-zh .share-preview{font-size:.82rem;}
+  .share-hint{font-size:.85rem;color:var(--ink-soft);margin:.1rem 0 .85rem;}
+  .share-send{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;height:3rem;border-radius:.85rem;background:var(--accent);color:#fff;font-weight:800;font-size:.92rem;border:none;cursor:pointer;text-decoration:none;box-shadow:0 8px 20px -8px rgba(16,185,129,.65);transition:.15s;}
+  .share-send:hover{filter:brightness(1.05);}
+  .share-send:active{transform:scale(.99);}
+  .share-send[disabled]{background:#e5e7eb;color:#9aa3af;box-shadow:none;cursor:not-allowed;}
+  .share-send svg{width:18px;height:18px;}
   .modal-body{padding:1.6rem;display:flex;flex-direction:column;gap:1.75rem;}
   .modal-body h4{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem;}
   .modal-body p{font-size:.95rem;color:var(--ink-soft);line-height:1.65;}
@@ -760,6 +785,16 @@
   </div>
 </div>
 
+<div class="modal-bg" id="shareModal">
+  <div class="modal-scrim" data-close></div>
+  <div class="modal share-modal">
+    <div class="modal-head">
+      <div class="l"><div class="ico" data-ico="wa"></div><h3 data-i18n="share_title">Send to WhatsApp</h3></div>
+      <button class="icon-btn" data-close data-i18n-aria="aria_close" aria-label="Close" data-ico="x"></button>
+    </div>
+    <div class="modal-body" id="shareBody"></div>
+  </div>
+</div>
 <script>
 /* =====================================================================
    ICONS — minimal inline SVG set (Lucide-style paths)
@@ -769,6 +804,8 @@ const ICONS = {
   leaf:P('<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/>'),
   'arrow-left':P('<path d="M19 12H5"/><path d="m12 19-7-7 7-7"/>'),
   'arrow-up':P('<path d="M12 19V5"/><path d="m5 12 7-7 7 7"/>'),
+  download:P('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>'),
+  wa:P('<path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7a8.5 8.5 0 1 1 16.1-3.8Z"/>'),
   home:P('<path d="m3 10 9-7 9 7"/><path d="M5 9.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5"/><path d="M9 21v-6h6v6"/>'),
   durian:`<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v3"/><path d="M12 5c-3.5 0-6.5 2.5-6.5 6.5S8.5 19 12 19s6.5-3.5 6.5-7.5S15.5 5 12 5z"/><path d="M8 6 6.5 4.5M16 6l1.5-1.5M5 10l-2-1M19 10l2-1"/><path d="M10 9 9 8M14 9l1-1M10 15l-1 1M14 15l1 1"/></svg>`,
   cloud:P('<path d="M12 2v2M5.6 5.6l1.4 1.4M2 12h2M20 12h2M17 7l1.4-1.4"/><circle cx="12" cy="11" r="3"/><path d="M16 18a4 4 0 0 0 0-8 5 5 0 0 0-9.7-1.5A3.5 3.5 0 1 0 7 18Z"/>'),
@@ -857,7 +894,7 @@ const DURIAN_CLONES = RAW_CLONES.map(c => ({
 const I18N = {
   en:{
     appTitle:'AgriPro Timeline',
-    trackTitle:'Tracking Progression', rec_title:'Calibration Log', rec_badge:'Record',
+    trackTitle:'Tracking Progression', rec_title:'Calibration Log', rec_badge:'Record', share_title:'Send to WhatsApp',
     rec_sub:"Each time you Sync an observation on the home screen it's saved here. Every entry re-zeros the projection to what you actually saw in the field and lists the schedule from that point through to harvest.",
     set_farmsHead:'Microclimate Sync — My Farms', set_savedFarms:'Saved farms',
     ph_farmEn:'Farm name (English) — optional', ph_farmZh:'Farm name (Chinese) — optional',
@@ -891,7 +928,7 @@ const I18N = {
   },
   zh:{
     appTitle:'榴莲丰收时间轴',
-    trackTitle:'进度追踪', rec_title:'校准记录', rec_badge:'记录',
+    trackTitle:'进度追踪', rec_title:'校准记录', rec_badge:'记录', share_title:'发送到 WhatsApp',
     rec_sub:'每次你在主页同步一次田间观察，记录都会保存在这里。每一条记录都会把预测重新归零到你在田间实际看到的物候，并从那时起列出直到采收的时间表。',
     set_farmsHead:'微气候同步 — 我的农场', set_savedFarms:'已保存的农场',
     ph_farmEn:'农场名称（英文）— 选填', ph_farmZh:'农场名称（中文）— 选填',
@@ -1777,16 +1814,245 @@ function renderFarms(){
    OBSERVATION HISTORY  (per-farm calibration log)
    ===================================================================== */
 const OBS_STAGE_LABEL = { induction:'Induction (drought stress)', bud:'Bud emergence', matchstick:'Matchstick', anthesis:'Full bloom (anthesis)', harvest:'Harvest target' };
-function obsLabel(k){ return ({ induction:LL('Induction (drought stress)','诱导（干旱胁迫）'), bud:LL('Bud emergence','萌芽'), matchstick:LL('Matchstick','火柴枝'), anthesis:LL('Full bloom (anthesis)','盛花'), harvest:LL('Harvest target','采收目标') })[k] || k; }
+function obsLabel(k){ return ({ induction:LL('Induction (drought stress)','诱导（干旱胁迫）'), bud:LL('Bud emergence','萌芽'), matchstick:LL('Matchstick','火柴枝'), anthesis:LL('Full bloom (anthesis)','盛花'), fruitset:LL('Fruit set','坐果'), expansion:LL('Rapid expansion','果实膨大'), maturation:LL('Maturation','熟化'), harvest:LL('Harvest target','采收目标') })[k] || k; }
 function activeFarm(){ return state.farms.find(f=>f.id===state.activeFarmId) || null; }
 function ymd(d){ if(!d) return null; const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), da=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${da}`; }
 const fmtYmd = s => fmtDate(parseLocalDate(s));
+
+/* ===== Record export & WhatsApp share ===== */
+function escH(x){ return String(x==null?'':x).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+const STAGE_NAME = {
+  pre_flower:{en:'Pre-Flowering & Induction', zh:'催花与诱导期'},
+  bud_emergence:{en:'Bud Emergence (Crab Eyes)', zh:'萌芽期（蟹眼期）'},
+  matchstick:{en:'Matchstick Elongation', zh:'火柴枝伸长期'},
+  flowering:{en:'Full Bloom (Anthesis)', zh:'盛花期'},
+  fruit_set:{en:'Fruit Set (Drop Risk)', zh:'坐果期（落果风险）'},
+  fruit_expansion:{en:'Rapid Expansion', zh:'果实膨大期'},
+  maturation:{en:'Maturation', zh:'熟化期'},
+  harvest:{en:'Harvest & Fruit Drop', zh:'采收与落果'},
+  recovery:{en:'Post-Harvest Recovery', zh:'采后恢复期（第一波抽梢）'},
+};
+const STAGE_SEQ = ['pre_flower','bud_emergence','matchstick','flowering','fruit_set','fruit_expansion','maturation','harvest','recovery'];
+function stageNameIn(id, lang){ const z=STAGE_NAME[id]; return z ? (lang==='zh'?z.zh:z.en) : id; }
+function obsStageNameIn(r, lang){ return stageNameIn(ANCHOR_STAGE[r.stage]||'flowering', lang); }
+function locOf(lang){ return lang==='zh'?'zh-CN':'en-US'; }
+function fmtDateIn(ymdStr, lang){ const d=parseLocalDate(ymdStr); if(!d) return (lang==='zh'?'日期待定':'Date TBD'); return d.toLocaleDateString(locOf(lang),{year:'numeric',month:'short',day:'numeric'}); }
+function cloneNameIn(r, lang){ const c=(state.clones||[]).find(x=>x.id===r.clone) || DURIAN_CLONES.find(x=>x.id===r.clone); if(!c) return r.cloneName||''; if(lang==='zh'){ if(c.custom){ if(c.zh) return c.zh; } else { const m=DURIAN_CLONES.find(d=>d.id===c.id); if(m&&m.zh) return m.zh; } } return c.name || c.zh || r.cloneName || ''; }
+function farmNameIn(f, lang){ if(!f) return ''; return (lang==='zh'?(f.zh||f.en):(f.en||f.zh)) || `${(+f.lat).toFixed(4)}, ${(+f.lng).toFixed(4)}`; }
+function recStageDate(r, stageId){ const z=(r.schedule||[]).find(x=>x.id===stageId); return z ? z.date : ''; }
+function sortedActiveRecords(){
+  const farm=activeFarm(); if(!farm) return [];
+  let rows=(farm.history||[]).filter(r=>!r.deleted);
+  const mode=state.histSort;
+  if(mode==='clone') rows=rows.slice().sort((a,b)=> cloneNameIn(a,state.lang).localeCompare(cloneNameIn(b,state.lang)) || (b.at-a.at));
+  else if(mode==='tree') rows=rows.slice().sort((a,b)=> String(a.tree||'').localeCompare(String(b.tree||''),undefined,{numeric:true}) || (b.at-a.at));
+  else rows=rows.slice().sort((a,b)=> b.at-a.at);
+  return rows;
+}
+function _xeq(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,''); }
+function _colLetter(n){ let r=''; n++; while(n>0){ const m=(n-1)%26; r=String.fromCharCode(65+m)+r; n=Math.floor((n-1)/26); } return r; }
+const _CRC_TABLE=(()=>{ const t=[]; for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1); t[n]=c>>>0; } return t; })();
+function _crc32(b){ let crc=-1; for(let i=0;i<b.length;i++) crc=(crc>>>8)^_CRC_TABLE[(crc^b[i])&0xFF]; return (crc^-1)>>>0; }
+function _zipStore(files){
+  const chunks=[], central=[]; let offset=0;
+  const u16=n=>[n&0xFF,(n>>8)&0xFF], u32=n=>[n&0xFF,(n>>8)&0xFF,(n>>16)&0xFF,(n>>24)&0xFF];
+  const enc=new TextEncoder();
+  files.forEach(f=>{
+    const nb=enc.encode(f.name), data=f.bytes, crc=_crc32(data);
+    const local=[0x50,0x4b,0x03,0x04].concat(u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(data.length),u32(data.length),u16(nb.length),u16(0));
+    chunks.push(new Uint8Array(local), nb, data);
+    const cen=[0x50,0x4b,0x01,0x02].concat(u16(20),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(data.length),u32(data.length),u16(nb.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(offset));
+    central.push(new Uint8Array(cen), nb);
+    offset += local.length+nb.length+data.length;
+  });
+  let cdlen=0; central.forEach(c=>cdlen+=c.length);
+  const end=[0x50,0x4b,0x05,0x06].concat(u16(0),u16(0),u16(files.length),u16(files.length),u32(cdlen),u32(offset),u16(0));
+  return new Blob([...chunks,...central,new Uint8Array(end)],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+function _xlDate(ymdStr){ const d=parseLocalDate(ymdStr); if(!d) return null; return Math.round((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-Date.UTC(1899,11,30))/86400000); }
+function _xlDateMs(ms){ const d=new Date(ms); return Math.round((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-Date.UTC(1899,11,30))/86400000); }
+function _buildXlsx(headers, widths, matrix, sheetName){
+  const enc=new TextEncoder();
+  const colsXml='<cols>'+widths.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('')+'</cols>';
+  const headRow='<row r="1">'+headers.map((h,i)=>`<c r="${_colLetter(i)}1" t="inlineStr" s="1"><is><t xml:space="preserve">${_xeq(h)}</t></is></c>`).join('')+'</row>';
+  const dataRows=matrix.map((cells,ri)=>{
+    const rn=ri+2;
+    const cs=cells.map((cell,ci)=>{
+      const ref=_colLetter(ci)+rn;
+      if(cell.t==='date'){ return cell.v==null?'':`<c r="${ref}" s="2"><v>${cell.v}</v></c>`; }
+      return (cell.v===''||cell.v==null)?'':`<c r="${ref}" t="inlineStr" s="0"><is><t xml:space="preserve">${_xeq(cell.v)}</t></is></c>`;
+    }).join('');
+    return `<row r="${rn}">${cs}</row>`;
+  }).join('');
+  const lastRef=_colLetter(headers.length-1)+(matrix.length+1);
+  const sheet='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+    +'<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'
+    +colsXml+'<sheetData>'+headRow+dataRows+'</sheetData>'
+    +`<autoFilter ref="A1:${lastRef}"/></worksheet>`;
+  const ct='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+    +'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+    +'<Default Extension="xml" ContentType="application/xml"/>'
+    +'<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
+    +'<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
+    +'<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>';
+  const rels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+    +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>';
+  const wb='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+    +`<sheets><sheet name="${_xeq(sheetName||'Records')}" sheetId="1" r:id="rId1"/></sheets></workbook>`;
+  const wbrels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+    +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'
+    +'<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>';
+  const styles='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+    +'<numFmts count="1"><numFmt numFmtId="164" formatCode="yyyy-mm-dd"/></numFmts>'
+    +'<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts>'
+    +'<fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>'
+    +'<borders count="1"><border/></borders>'
+    +'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
+    +'<cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs>'
+    +'<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+  const files=[
+    {name:'[Content_Types].xml', bytes:enc.encode(ct)},
+    {name:'_rels/.rels', bytes:enc.encode(rels)},
+    {name:'xl/workbook.xml', bytes:enc.encode(wb)},
+    {name:'xl/_rels/workbook.xml.rels', bytes:enc.encode(wbrels)},
+    {name:'xl/styles.xml', bytes:enc.encode(styles)},
+    {name:'xl/worksheets/sheet1.xml', bytes:enc.encode(sheet)},
+  ];
+  return _zipStore(files);
+}
+function exportRecordsXLSX(){
+  const farm=activeFarm(); if(!farm) return;
+  const lang=state.lang;
+  const rows=sortedActiveRecords();
+  if(!rows.length){ showToast(LL('No records to export','没有可导出的记录')); return; }
+  const headers=[LL('Logged Date','记录日期'),LL('Farm','农场'),LL('Clone','品种'),LL('Tree ID','树编号'),LL('Observed Stage','观察阶段'),LL('Bloom (DAA 0)','盛花 (DAA 0)')].concat(STAGE_SEQ.map(id=>stageNameIn(id,lang)));
+  const widths=[14,18,22,10,24,15].concat(STAGE_SEQ.map(()=>15));
+  const matrix=rows.map(r=>{
+    const cells=[];
+    cells.push({t:'date', v:_xlDateMs(r.at)});
+    cells.push({t:'text', v:farmNameIn(farm,lang)});
+    cells.push({t:'text', v:cloneNameIn(r,lang)});
+    cells.push({t:'text', v:r.tree||''});
+    cells.push({t:'text', v:obsStageNameIn(r,lang)});
+    cells.push({t:'date', v:_xlDate(r.anthesis)});
+    STAGE_SEQ.forEach(id=>{ const d=recStageDate(r,id); cells.push({t:'date', v:d?_xlDate(d):null}); });
+    return cells;
+  });
+  const blob=_buildXlsx(headers, widths, matrix, LL('Records','记录'));
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const fname=((farmNameIn(farm,'en')||'farm').replace(/[^\w\-]+/g,'_').toLowerCase())||'farm';
+  a.href=url; a.download='record-log-'+fname+'.xlsx';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+  showToast(LL('Excel exported','Excel 已导出'));
+}
+function waMessage(records, lang, scopeLabel){
+  const farm=activeFarm();
+  const L=(en,zh)=> lang==='zh'?zh:en;
+  const out=[];
+  out.push(L('AgriPro Timeline — Field Update','榴莲丰收时间轴 — 田间更新'));
+  out.push(L('Farm','农场')+': '+farmNameIn(farm,lang));
+  if(scopeLabel) out.push(scopeLabel);
+  out.push('');
+  records.forEach((r,i)=>{
+    const tree = r.tree ? ' · '+L('Tree','树')+' '+r.tree : '';
+    out.push((i+1)+'. '+cloneNameIn(r,lang)+tree);
+    out.push('   '+L('Observed','观察')+': '+obsStageNameIn(r,lang)+' — '+fmtDateIn(r.observed,lang));
+    out.push('   '+L('Bloom (DAA 0)','盛花 (DAA 0)')+': '+fmtDateIn(r.anthesis,lang));
+    out.push('   '+L('Est. harvest','预计采收')+': '+(r.harvest?fmtDateIn(r.harvest,lang):L('TBD','待定')));
+    const oi=STAGE_SEQ.indexOf(ANCHOR_STAGE[r.stage]||'flowering');
+    const next=(r.schedule||[]).find(z=>STAGE_SEQ.indexOf(z.id)>oi && z.date);
+    if(next) out.push('   '+L('Next check','下次检查')+': '+stageNameIn(next.id,lang)+' — '+fmtDateIn(next.date,lang));
+    out.push('');
+  });
+  out.push('— '+L('Sent via AgriPro Timeline','由榴莲丰收时间轴发送'));
+  return out.join('\n');
+}
+let share={lang:'zh',scope:'all',clone:'',tree:'',entryId:null};
+function shareRecords(){
+  const farm=activeFarm(); const all=((farm&&farm.history)||[]).filter(r=>!r.deleted);
+  if(share.scope==='entry'){ const r=all.find(x=>x.id===share.entryId); return r?[r]:[]; }
+  if(share.scope==='clone' && share.clone) return all.filter(r=>r.clone===share.clone);
+  if(share.scope==='tree' && share.tree) return all.filter(r=>(r.tree||'')===share.tree);
+  return all;
+}
+function shareScopeLabel(){
+  const L=(en,zh)=> share.lang==='zh'?zh:en;
+  if(share.scope==='entry') return '';
+  if(share.scope==='clone' && share.clone){ const r=shareRecords()[0]; return L('Clone','品种')+': '+(r?cloneNameIn(r,share.lang):''); }
+  if(share.scope==='tree' && share.tree) return L('Tree','树')+': '+share.tree;
+  return L('All observations','全部观察');
+}
+function openShare(entryId){ const farm=activeFarm(); if(!farm) return; share={ lang:state.lang, scope: entryId?'entry':'all', clone:'', tree:'', entryId:entryId||null }; renderShareBody(); openModal('shareModal'); }
+function sendWhatsApp(records, lang, scopeLabel){
+  if(!records||!records.length){ showToast(LL('Nothing to send','没有可发送的内容')); return; }
+  const text=waMessage(records, lang, scopeLabel);
+  const url='https://wa.me/?text='+encodeURIComponent(text);
+  // 1) open a new tab/window — reliable on desktop and mobile browsers
+  let win=null; try{ win=window.open(url,'_blank'); }catch(e){}
+  if(win){ try{ win.opener=null; }catch(e){} return; }
+  // 2) new tab blocked (e.g. installed iOS PWA) -> native share sheet
+  if(navigator.share){ navigator.share({ text }).catch(err=>{ if(!(err&&err.name==='AbortError')){ try{ location.href=url; }catch(_){ } } }); return; }
+  // 3) last resort: navigate this tab to wa.me (hands off to WhatsApp)
+  try{ location.href=url; }catch(e){}
+}
+function renderShareBody(){
+  const body=document.getElementById('shareBody'); if(!body) return;
+  const farm=activeFarm(); const all=((farm&&farm.history)||[]).filter(r=>!r.deleted);
+  const clones=[...new Set(all.map(r=>r.clone))];
+  const trees=[...new Set(all.map(r=>r.tree).filter(Boolean))];
+  const seg=(grp,val,labEn,labZh,cur)=> `<button class="seg${cur===val?' on':''}" data-${grp}="${val}">${LL(labEn,labZh)}</button>`;
+  let html='';
+  if(share.scope==='entry'){
+    const r=all.find(x=>x.id===share.entryId);
+    html += `<div class="share-chip">${ico('check')}<span>${LL('One observation','单条观察')} &middot; <b>${r?escH(cloneNameIn(r,state.lang)):''}</b>${r&&r.tree?' &middot; '+LL('Tree','树')+' '+escH(r.tree):''}</span></div>`;
+  } else {
+    html += `<div class="share-group"><div class="share-lab">${LL('Send','发送')}</div><div class="seg-group">`
+      + seg('scope','all','Whole farm','整个农场',share.scope)
+      + seg('scope','clone','By clone','按品种',share.scope)
+      + seg('scope','tree','By Tree','按树编号',share.scope)
+      + `</div>`;
+    if(share.scope==='clone'){
+      html += `<select id="shareClone" class="share-sel"><option value="">${LL('Choose a clone…','请选择品种…')}</option>`
+        + clones.map(cid=>{ const r=all.find(x=>x.clone===cid); return `<option value="${escH(cid)}"${share.clone===cid?' selected':''}>${escH(cloneNameIn(r,state.lang))}</option>`; }).join('')
+        + `</select>`;
+    } else if(share.scope==='tree'){
+      html += trees.length ? (`<select id="shareTree" class="share-sel"><option value="">${LL('Choose a Tree ID…','请选择树编号…')}</option>`
+        + trees.map(t=>`<option value="${escH(t)}"${share.tree===t?' selected':''}>${escH(t)}</option>`).join('')
+        + `</select>`) : `<div class="share-hint">${LL('No Tree IDs logged yet.','尚未记录树编号。')}</div>`;
+    }
+    html += `</div>`;
+  }
+  html += `<div class="share-group"><div class="share-lab">${LL('Language','语言')}</div><div class="seg-group">`
+    + `<button class="seg${share.lang==='en'?' on':''}" data-lang="en">English</button>`
+    + `<button class="seg${share.lang==='zh'?' on':''}" data-lang="zh">中文</button>`
+    + `</div></div>`;
+  const recs=shareRecords(); const n=recs.length;
+  if(n){
+    const text=waMessage(recs, share.lang, shareScopeLabel());
+    html += `<div class="share-group"><div class="share-lab">${LL('Preview','预览')}</div><div class="share-preview">${escH(text)}</div></div>`;
+    const url='https://wa.me/?text='+encodeURIComponent(text);
+    html += `<a id="shareSend" class="share-send" href="${escH(url)}" target="_blank" rel="noopener">${ico('wa')}<span>${LL('Send to WhatsApp','发送到 WhatsApp')}</span></a>`;
+  } else {
+    html += `<div class="share-hint">${LL('Pick a clone or Tree ID above to continue.','请在上方选择品种或树编号。')}</div>`;
+    html += `<button class="share-send" disabled>${ico('wa')}<span>${LL('Send to WhatsApp','发送到 WhatsApp')}</span></button>`;
+  }
+  body.innerHTML=html; decorateIcons();
+}
+
 function driftDays(curYmd, prevYmd){
   const a=parseLocalDate(curYmd), b=parseLocalDate(prevYmd);
   if(!a||!b) return null;
   return Math.round((a.getTime()-b.getTime())/86400000);
 }
-const STAGE_ORDER = { induction:0, bud:1, matchstick:2, anthesis:3, harvest:7 };
+const STAGE_ORDER = { induction:0, bud:1, matchstick:2, anthesis:3, fruitset:4, expansion:5, maturation:6, harvest:7 };
 function observationConflict(farm, rec){
   const newIdx = STAGE_ORDER[rec.stage] ?? 0;
   const newObs = parseLocalDate(rec.observed);
@@ -1871,6 +2137,7 @@ function renderHistory(){
   const active = hist.filter(r=>!r.deleted);
   const deleted = hist.filter(r=>r.deleted);
   let html = `<hr class="hairline" /><div class="row" style="margin-bottom:.5rem;align-items:baseline;gap:.45rem;flex-wrap:wrap;justify-content:flex-start"><span class="mini">${LL('History','记录')} —</span><span class="hist-farm">${esc(farmDisplayName(farm))}</span></div>`;
+  if(active.length) html += `<div class="log-tools"><button class="log-tool" data-export>${ico('download')} ${LL('Export Excel','导出 Excel')}</button><button class="log-tool" data-share-all>${ico('wa')} ${LL('Send WhatsApp','发送 WhatsApp')}</button></div>`;
   if(!hist.length){
     box.innerHTML = html + `<div class="hist-note">${LL('No observations logged yet. Pick the stage you saw, set its date, and tap <b>Sync Current Stage</b> — every sync is saved here so your records are never lost.','尚未记录任何观察。选择你看到的阶段，设定日期，然后点击 <b>同步当前阶段</b> — 每次同步都会保存在这里，记录绝不丢失。')}</div>`;
     return;
@@ -1900,7 +2167,8 @@ function renderHistory(){
   const display = active.slice();
   if(sortMode==='clone') display.sort((a,b)=> recCloneName(a).localeCompare(recCloneName(b)) || (a.tree||'').localeCompare(b.tree||'') || (b.at-a.at));
   else display.sort((a,b)=> b.at - a.at);
-  const sortCtl = active.length>1 ? `<div class="hist-sort"><span class="hs-label">${LL('Sort','排序')}</span><button class="hs-btn${sortMode==='logged'?' on':''}" data-sort="logged">${LL('Logged date','记录日期')}</button><button class="hs-btn${sortMode==='clone'?' on':''}" data-sort="clone">${LL('Clone','品种')}</button></div>` : '';
+  const anyTree = active.some(r=>r.tree);
+  const sortCtl = active.length>1 ? `<div class="hist-sort"><span class="hs-label">${LL('Sort','排序')}</span><button class="hs-btn${sortMode==='logged'?' on':''}" data-sort="logged">${LL('Logged date','记录日期')}</button><button class="hs-btn${sortMode==='clone'?' on':''}" data-sort="clone">${LL('Clone','品种')}</button>${anyTree?`<button class="hs-btn${sortMode==='tree'?' on':''}" data-sort="tree">${LL('Tree ID','树编号')}</button>`:''}</div>` : '';
   const stageTitleById = {}; try{ getStagesNow().forEach(z=>{ stageTitleById[z.id]=z.title; }); }catch(e){}
   const rows = display.map(r=>{
     const drift = driftMap[r.id] || '';
@@ -1936,7 +2204,7 @@ function renderHistory(){
       <div class="hist-sub">${esc(obsLabel(r.stage))}${LL(' observed ',' 观察于 ')}${esc(fmtYmd(r.observed))}</div>
       <div class="hist-sub">${LL('Bloom (DAA 0)','盛花 (DAA 0)')}: ${esc(fmtYmd(r.anthesis))} &middot; ${LL('est. harvest','预计采收')} ${r.harvest?esc(fmtYmd(r.harvest)):LL('TBD','待定')}</div>
       ${schedHtml}
-      <div class="hist-foot"><span class="hist-meta">${LL('logged','记录于')} ${esc(when)}</span><button class="rec-btn" data-action="del" data-id="${r.id}">${ico('trash')} ${LL('Delete','删除')}</button></div>
+      <div class="hist-foot"><span class="hist-meta">${LL('logged','记录于')} ${esc(when)}</span><span class="hist-foot-btns"><button class="rec-btn wa" data-share-entry data-id="${r.id}">${ico('wa')} WhatsApp</button><button class="rec-btn" data-action="del" data-id="${r.id}">${ico('trash')} ${LL('Delete','删除')}</button></span></div>
     </div>`;
   }).join('');
   let delHtml = '';
@@ -2474,6 +2742,9 @@ function wire(){
   document.getElementById('farmSaveBtn').addEventListener('click',saveFarmFromForm);
   document.getElementById('farmCancelBtn').addEventListener('click',()=>{ clearFarmForm(); renderFarms(); });
   document.getElementById('obsHistory').addEventListener('click',e=>{
+    if(e.target.closest('button[data-export]')){ exportRecordsXLSX(); return; }
+    if(e.target.closest('button[data-share-all]')){ openShare(null); return; }
+    const seb=e.target.closest('button[data-share-entry]'); if(seb){ openShare(seb.dataset.id); return; }
     const sb=e.target.closest('button[data-sort]');
     if(sb){ state.histSort=sb.dataset.sort; renderHistory(); return; }
     const b=e.target.closest('button[data-action]'); if(!b) return;
@@ -2481,6 +2752,16 @@ function wire(){
     if(act==='del'){ state.confirmForget=null; softDeleteRecord(id); }
     else if(act==='restore'){ state.confirmForget=null; restoreRecord(id); }
     else if(act==='forget'){ if(state.confirmForget===id){ forgetRecord(id); } else { state.confirmForget=id; renderHistory(); } }
+  });
+  const _sm=document.getElementById('shareModal');
+  if(_sm) _sm.addEventListener('click',e=>{
+    const sc=e.target.closest('button[data-scope]'); if(sc){ share.scope=sc.dataset.scope; share.clone=''; share.tree=''; renderShareBody(); return; }
+    const lg=e.target.closest('button[data-lang]'); if(lg){ share.lang=lg.dataset.lang; renderShareBody(); return; }
+    if(e.target.closest('#shareSend')){ setTimeout(closeModals, 80); return; }
+  });
+  if(_sm) _sm.addEventListener('change',e=>{
+    if(e.target.id==='shareClone'){ share.clone=e.target.value; renderShareBody(); }
+    if(e.target.id==='shareTree'){ share.tree=e.target.value; renderShareBody(); }
   });
   document.getElementById('farmList').addEventListener('click',e=>{
     const b=e.target.closest('button[data-action]'); if(!b) return;
